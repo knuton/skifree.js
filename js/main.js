@@ -194,7 +194,7 @@ function startNeverEndingGame (images) {
 				'Mouse Map Position: ' + mouseMapPosition[0].toFixed(1) + ', ' + mouseMapPosition[1].toFixed(1)*/
 			]);
 		}
-	});
+	 });
 
 	game.afterCycle(function() {
 		if (livesLeft === 0) {
@@ -203,69 +203,34 @@ function startNeverEndingGame (images) {
 	});
 
 	game.addUIElement(infoBox);
-	
-	$(mainCanvas)
-	.mousemove(function (e) {
-		game.setMouseX(e.pageX);
-		game.setMouseY(e.pageY);
-		player.resetDirection();
-		player.startMovingIfPossible();
-	})
-	.bind('click', function (e) {
-		game.setMouseX(e.pageX);
-		game.setMouseY(e.pageY);
-		player.resetDirection();
-		player.startMovingIfPossible();
-	})
-	.focus(); // So we can listen to events immediately
 
-	Mousetrap.bind('f', player.speedBoost);
-	Mousetrap.bind('t', player.attemptTrick);
-	Mousetrap.bind(['w', 'up'], function () {
-		player.stop();
-	});
-	Mousetrap.bind(['a', 'left'], function () {
-		if (player.direction === 270) {
-			player.stepWest();
-		} else {
-			player.turnWest();
-		}
-	});
-	Mousetrap.bind(['s', 'down'], function () {
-		player.setDirection(180);
-		player.startMovingIfPossible();
-	});
-	Mousetrap.bind(['d', 'right'], function () {
-		if (player.direction === 90) {
-			player.stepEast();
-		} else {
-			player.turnEast();
-		}
-	});
-	Mousetrap.bind('m', spawnMonster);
-	Mousetrap.bind('b', spawnBoarder);
-	Mousetrap.bind('space', resetGame);
+  PlayEGI.onSignal(function(signal) {
+    switch(signal.type) {
+      case 'Ping':
+        PlayEGI.pong();
+        break;
 
-	var hammertime = Hammer(mainCanvas).on('press', function (e) {
-		e.preventDefault();
-		game.setMouseX(e.gesture.center.x);
-		game.setMouseY(e.gesture.center.y);
-	}).on('tap', function (e) {
-		game.setMouseX(e.gesture.center.x);
-		game.setMouseY(e.gesture.center.y);
-	}).on('pan', function (e) {
-		game.setMouseX(e.gesture.center.x);
-		game.setMouseY(e.gesture.center.y);
-		player.resetDirection();
-		player.startMovingIfPossible();
-	}).on('doubletap', function (e) {
-		player.speedBoost();
-	});
+      case "SensoState":
+        var balance = signal.state.right.f - signal.state.left.f;
+        var canvasX = mainCanvas.width * (balance * 1.2 + 0.5);
+        game.setMouseX(canvasX);
+        game.setMouseY(mainCanvas.height);
+    		player.resetDirection();
+    		player.startMovingIfPossible();
+        break;
+
+      default:
+        break;
+    }
+  });
 
 	player.isMoving = false;
 	player.setDirection(270);
 
 	game.start();
+
+  PlayEGI.ready();
+
 }
 
 function resizeCanvas() {
