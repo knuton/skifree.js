@@ -19,6 +19,82 @@ var Skier = require('./lib/skier');
 var InfoBox = require('./lib/infoBox');
 var Game = require('./lib/game');
 
+var play = null;
+
+// Helper to send commands
+function sendCommand (cmd) {
+  if (play) {
+    play.postMessage(cmd, '*')
+  } else setInterval(function() {
+		console.log("delaying...")
+		sendCommand(cmd);
+	}, 50);
+}
+
+// Setup listener for messages from Play
+window.addEventListener('message', function (event) {
+  var signal = event.data
+
+  switch (signal.type) {
+    case 'SetupEGI':
+      if (!play) {
+        play = event.source;
+        loadImages(imageSources, startNeverEndingGame);
+        ready();
+      }
+      // This signal is only to setup the interface it is not forwarded to consumers
+      break;
+
+    case 'Ping':
+      pong();
+      break;
+
+    case 'Step':
+      window.dispatchEvent(new CustomEvent('PlayEGI-Step', { detail: { direction: signal.direction } }));
+      break;
+
+    default:
+      // TODO
+      break;
+  }
+})
+
+// Add an error handler
+window.onerror = function (event, source, lineno, colno, error) {
+  sendCommand({
+    type: 'Error',
+    error: {
+      event: event,
+      source: source,
+      lineno: lineno,
+      colno: colno,
+      error: error
+    }
+  })
+}
+
+function ready() {
+  sendCommand({type: 'Ready'})
+}
+
+function pong() {
+  sendCommand({type: 'Pong'})
+}
+
+function suspend() {
+  sendCommand({type: 'Suspend'})
+}
+
+function abort() {
+  sendCommand({type: 'Abort'})
+}
+
+function finish(metrics) {
+  metrics = metrics || {}
+  sendCommand({type: 'Finish', metrics: metrics})
+}
+
+
 // Local variables for starting the game
 var mainCanvas = document.getElementById('skifree-canvas');
 var dContext = mainCanvas.getContext('2d');
@@ -203,64 +279,98 @@ function startNeverEndingGame (images) {
 	});
 
 	game.addUIElement(infoBox);
-	
-	$(mainCanvas)
-	.mousemove(function (e) {
-		game.setMouseX(e.pageX);
-		game.setMouseY(e.pageY);
-		player.resetDirection();
-		player.startMovingIfPossible();
-	})
-	.bind('click', function (e) {
-		game.setMouseX(e.pageX);
-		game.setMouseY(e.pageY);
-		player.resetDirection();
-		player.startMovingIfPossible();
-	})
-	.focus(); // So we can listen to events immediately
 
-	Mousetrap.bind('f', player.speedBoost);
-	Mousetrap.bind('t', player.attemptTrick);
-	Mousetrap.bind(['w', 'up'], function () {
-		player.stop();
-	});
-	Mousetrap.bind(['a', 'left'], function () {
-		if (player.direction === 270) {
-			player.stepWest();
-		} else {
-			player.turnWest();
-		}
-	});
-	Mousetrap.bind(['s', 'down'], function () {
-		player.setDirection(180);
-		player.startMovingIfPossible();
-	});
-	Mousetrap.bind(['d', 'right'], function () {
-		if (player.direction === 90) {
-			player.stepEast();
-		} else {
-			player.turnEast();
-		}
-	});
-	Mousetrap.bind('m', spawnMonster);
-	Mousetrap.bind('b', spawnBoarder);
-	Mousetrap.bind('space', resetGame);
+	// $(mainCanvas)
+	// .mousemove(function (e) {
+	// 	game.setMouseX(e.pageX);
+	// 	game.setMouseY(e.pageY);
+	// 	player.resetDirection();
+	// 	player.startMovingIfPossible();
+	// })
+	// .bind('click', function (e) {
+	// 	game.setMouseX(e.pageX);
+	// 	game.setMouseY(e.pageY);
+	// 	player.resetDirection();
+	// 	player.startMovingIfPossible();
+	// })
+	// .focus(); // So we can listen to events immediately
+  //
+	// Mousetrap.bind('f', player.speedBoost);
+	// Mousetrap.bind('t', player.attemptTrick);
+	// Mousetrap.bind(['w', 'up'], function () {
+	// 	player.stop();
+	// });
+	// Mousetrap.bind(['a', 'left'], function () {
+	// 	if (player.direction === 270) {
+	// 		player.stepWest();
+	// 	} else {
+	// 		player.turnWest();
+	// 	}
+	// });
+	// Mousetrap.bind(['s', 'down'], function () {
+	// 	player.setDirection(180);
+	// 	player.startMovingIfPossible();
+	// });
+	// Mousetrap.bind(['d', 'right'], function () {
+	// 	if (player.direction === 90) {
+	// 		player.stepEast();
+	// 	} else {
+	// 		player.turnEast();
+	// 	}
+	// });
+	// Mousetrap.bind('m', spawnMonster);
+	// Mousetrap.bind('b', spawnBoarder);
+	// Mousetrap.bind('space', resetGame);
+  //
+	// var hammertime = Hammer(mainCanvas).on('press', function (e) {
+	// 	e.preventDefault();
+	// 	game.setMouseX(e.gesture.center.x);
+	// 	game.setMouseY(e.gesture.center.y);
+	// }).on('tap', function (e) {
+	// 	game.setMouseX(e.gesture.center.x);
+	// 	game.setMouseY(e.gesture.center.y);
+	// }).on('pan', function (e) {
+	// 	game.setMouseX(e.gesture.center.x);
+	// 	game.setMouseY(e.gesture.center.y);
+	// 	player.resetDirection();
+	// 	player.startMovingIfPossible();
+	// }).on('doubletap', function (e) {
+	// 	player.speedBoost();
+	// });
 
-	var hammertime = Hammer(mainCanvas).on('press', function (e) {
-		e.preventDefault();
-		game.setMouseX(e.gesture.center.x);
-		game.setMouseY(e.gesture.center.y);
-	}).on('tap', function (e) {
-		game.setMouseX(e.gesture.center.x);
-		game.setMouseY(e.gesture.center.y);
-	}).on('pan', function (e) {
-		game.setMouseX(e.gesture.center.x);
-		game.setMouseY(e.gesture.center.y);
-		player.resetDirection();
-		player.startMovingIfPossible();
-	}).on('doubletap', function (e) {
-		player.speedBoost();
-	});
+  window.addEventListener('PlayEGI-Step', function(e) {
+    console.log('PlayEGI-Step', e);
+    switch (e.detail.direction) {
+      case 'Left':
+    		if (player.direction === 270) {
+    			player.stepWest();
+    		} else {
+    			player.turnWest();
+    		}
+        break;
+
+      case 'Right':
+    		if (player.direction === 90) {
+    			player.stepEast();
+    		} else {
+    			player.turnEast();
+    		}
+        break;
+
+      case 'Down':
+    		player.setDirection(180);
+    		player.startMovingIfPossible();
+        break;
+
+      case 'Up':
+    		player.stop();
+        break;
+
+      default:
+        break;
+    }
+
+  });
 
 	player.isMoving = false;
 	player.setDirection(270);
@@ -276,7 +386,5 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas, false);
 
 resizeCanvas();
-
-loadImages(imageSources, startNeverEndingGame);
 
 this.exports = window;
