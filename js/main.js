@@ -19,79 +19,71 @@ var Skier = require('./lib/skier');
 var InfoBox = require('./lib/infoBox');
 var Game = require('./lib/game');
 
-var play = null;
+// Dividat Play EGI
+function PlayEGI (onSignal) {
+  var play = null;
 
-// Helper to send commands
-function sendCommand (cmd) {
-  if (play) {
-    play.postMessage(cmd, '*')
-  } else setInterval(function() {
-		console.log("delaying...")
-		sendCommand(cmd);
-	}, 50);
-}
-
-// Setup listener for messages from Play
-window.addEventListener('message', function (event) {
-  var signal = event.data
-
-  switch (signal.type) {
-    case 'SetupEGI':
-      if (!play) {
-        play = event.source;
-        loadImages(imageSources, startNeverEndingGame);
-        ready();
-      }
-      // This signal is only to setup the interface it is not forwarded to consumers
-      break;
-
-    case 'Ping':
-      pong();
-      break;
-
-    case 'Step':
-      window.dispatchEvent(new CustomEvent('PlayEGI-Step', { detail: { direction: signal.direction } }));
-      break;
-
-    default:
-      // TODO
-      break;
+  // Helper to send commands
+  function sendCommand (cmd) {
+    if (play) {
+      play.postMessage(cmd, '*');
+    } else {
+      setTimeout(function() {
+        sendCommand(cmd);
+      }, 50);
+    }
   }
-})
 
-// Add an error handler
-window.onerror = function (event, source, lineno, colno, error) {
-  sendCommand({
-    type: 'Error',
-    error: {
-      event: event,
-      source: source,
-      lineno: lineno,
-      colno: colno,
-      error: error
+  var commands = {
+    ready: function() {
+      sendCommand({type: 'Ready'})
+    },
+    pong: function() {
+      sendCommand({type: 'Pong'})
+    },
+    suspend: function() {
+      sendCommand({type: 'Suspend'})
+    },
+    abort: function() {
+      sendCommand({type: 'Abort'})
+    },
+    finish: function(metrics) {
+      metrics = metrics || {}
+      sendCommand({type: 'Finish', metrics: metrics})
+    }
+  };
+
+  // Setup listener for messages from Play
+  window.addEventListener('message', function (event) {
+    var signal = event.data;
+    play = event.source;
+
+    switch (signal.type) {
+      case 'SetupEGI':
+        // This signal is only to setup the interface it is not forwarded to consumers
+        break;
+
+      default:
+        onSignal(signal, commands);
+        break;
     }
   })
-}
 
-function ready() {
-  sendCommand({type: 'Ready'})
-}
+  // Add an error handler
+  window.onerror = function (event, source, lineno, colno, error) {
+    sendCommand({
+      type: 'Error',
+      error: {
+        event: event,
+        source: source,
+        lineno: lineno,
+        colno: colno,
+        error: error
+      }
+    });
+  };
 
-function pong() {
-  sendCommand({type: 'Pong'})
-}
-
-function suspend() {
-  sendCommand({type: 'Suspend'})
-}
-
-function abort() {
-  sendCommand({type: 'Abort'})
-}
-
-function finish(metrics) {
-  metrics = metrics || {}
-  sendCommand({type: 'Finish', metrics: metrics})
+  return commands;
 }
 
 
@@ -280,102 +272,56 @@ function startNeverEndingGame (images) {
 
 	game.addUIElement(infoBox);
 
-	// $(mainCanvas)
-	// .mousemove(function (e) {
-	// 	game.setMouseX(e.pageX);
-	// 	game.setMouseY(e.pageY);
-	// 	player.resetDirection();
-	// 	player.startMovingIfPossible();
-	// })
-	// .bind('click', function (e) {
-	// 	game.setMouseX(e.pageX);
-	// 	game.setMouseY(e.pageY);
-	// 	player.resetDirection();
-	// 	player.startMovingIfPossible();
-	// })
-	// .focus(); // So we can listen to events immediately
-  //
-	// Mousetrap.bind('f', player.speedBoost);
-	// Mousetrap.bind('t', player.attemptTrick);
-	// Mousetrap.bind(['w', 'up'], function () {
-	// 	player.stop();
-	// });
-	// Mousetrap.bind(['a', 'left'], function () {
-	// 	if (player.direction === 270) {
-	// 		player.stepWest();
-	// 	} else {
-	// 		player.turnWest();
-	// 	}
-	// });
-	// Mousetrap.bind(['s', 'down'], function () {
-	// 	player.setDirection(180);
-	// 	player.startMovingIfPossible();
-	// });
-	// Mousetrap.bind(['d', 'right'], function () {
-	// 	if (player.direction === 90) {
-	// 		player.stepEast();
-	// 	} else {
-	// 		player.turnEast();
-	// 	}
-	// });
-	// Mousetrap.bind('m', spawnMonster);
-	// Mousetrap.bind('b', spawnBoarder);
-	// Mousetrap.bind('space', resetGame);
-  //
-	// var hammertime = Hammer(mainCanvas).on('press', function (e) {
-	// 	e.preventDefault();
-	// 	game.setMouseX(e.gesture.center.x);
-	// 	game.setMouseY(e.gesture.center.y);
-	// }).on('tap', function (e) {
-	// 	game.setMouseX(e.gesture.center.x);
-	// 	game.setMouseY(e.gesture.center.y);
-	// }).on('pan', function (e) {
-	// 	game.setMouseX(e.gesture.center.x);
-	// 	game.setMouseY(e.gesture.center.y);
-	// 	player.resetDirection();
-	// 	player.startMovingIfPossible();
-	// }).on('doubletap', function (e) {
-	// 	player.speedBoost();
-	// });
-
-  window.addEventListener('PlayEGI-Step', function(e) {
-    console.log('PlayEGI-Step', e);
-    switch (e.detail.direction) {
-      case 'Left':
-    		if (player.direction === 270) {
-    			player.stepWest();
-    		} else {
-    			player.turnWest();
-    		}
+  var commands = PlayEGI(function(signal, commands) {
+    switch(signal.type) {
+      case 'Ping':
+        commands.pong();
         break;
 
-      case 'Right':
-    		if (player.direction === 90) {
-    			player.stepEast();
-    		} else {
-    			player.turnEast();
-    		}
-        break;
+      case 'Step':
+        switch(signal.direction) {
+          case 'Left':
+        		if (player.direction === 270) {
+        			player.stepWest();
+        		} else {
+        			player.turnWest();
+        		}
+            break;
 
-      case 'Down':
-    		player.setDirection(180);
-    		player.startMovingIfPossible();
-        break;
+          case 'Right':
+        		if (player.direction === 90) {
+        			player.stepEast();
+        		} else {
+        			player.turnEast();
+        		}
+            break;
 
-      case 'Up':
-    		player.stop();
+          case 'Down':
+        		player.setDirection(180);
+        		player.startMovingIfPossible();
+            break;
+
+          case 'Up':
+        		player.stop();
+            break;
+
+          default:
+            break;
+        }
         break;
 
       default:
         break;
     }
-
   });
 
 	player.isMoving = false;
 	player.setDirection(270);
 
 	game.start();
+
+  commands.ready();
+
 }
 
 function resizeCanvas() {
@@ -386,5 +332,7 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas, false);
 
 resizeCanvas();
+
+loadImages(imageSources, startNeverEndingGame);
 
 this.exports = window;
