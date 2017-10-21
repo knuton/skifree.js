@@ -84,6 +84,9 @@ function startNeverEndingGame (images) {
       ])
       game.pause()
       game.cycle()
+      window.PlayEGI.finish({
+        distanceTravelledInMetres: { type_: 'Distance', value: parseFloat(distanceTravelledInMetres) }
+      })
     }
   }
 
@@ -186,10 +189,26 @@ function startNeverEndingGame (images) {
 
   game.addUIElement(infoBox)
 
-  PlayEGI.onSignal(function (signal) {
+  window.PlayEGI.onSignal(function (signal) {
     switch (signal.type) {
+      case 'Hello':
+        window.PlayEGI.ready()
+        game.start()
+        window.setTimeout(function () {
+          detectEnd()
+        }, signal.settings.duration.value)
+        break
+
+      case 'Suspend':
+        game.pause()
+        break
+
+      case 'Resume':
+        game.start()
+        break
+
       case 'Ping':
-        PlayEGI.pong()
+        window.PlayEGI.pong()
         break
 
       case 'SensoState':
@@ -208,10 +227,6 @@ function startNeverEndingGame (images) {
 
   player.isMoving = false
   player.setDirection(270)
-
-  game.start()
-
-  PlayEGI.ready()
 }
 
 function resizeCanvas () {
