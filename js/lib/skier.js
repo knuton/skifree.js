@@ -1,15 +1,4 @@
-var Sprite = require('./sprite')
-if (typeof navigator !== 'undefined') {
-  navigator.vibrate = navigator.vibrate ||
-    navigator.webkitVibrate ||
-    navigator.mozVibrate ||
-    navigator.msVibrate
-} else {
-  navigator = {
-    vibrate: false
-  }
-}
-
+var Sprite = require('./sprite');
 (function (global) {
   function Skier (data) {
     var discreteDirections = {
@@ -443,10 +432,6 @@ if (typeof navigator !== 'undefined') {
 
     that.hasHitObstacle = function (obs) {
       setCrashed()
-
-      if (navigator.vibrate) {
-        navigator.vibrate(500)
-      }
 
       obstaclesHit.push(obs.id)
 

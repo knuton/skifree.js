@@ -49,12 +49,10 @@ var EventedLoop = require('eventedloop');
 
     this.setMouseX = function (x) {
       mouseX = x
-      document.getElementById('pointer').style.left = x + 'px'
     }
 
     this.setMouseY = function (y) {
       mouseY = y
-      document.getElementById('pointer').style.top = y + 'px'
     }
 
     player.setMapPosition(0, 0)
