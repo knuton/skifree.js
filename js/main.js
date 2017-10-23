@@ -199,7 +199,7 @@ function startNeverEndingGame (images) {
     switch (signal.type) {
       case 'Hello':
         window.PlayEGI.ready()
-        game.start()
+
         if (signal.settings) {
           settings = {
             duration: (signal.settings.duration && signal.settings.duration.value) || defaultSettings.duration,
@@ -212,6 +212,8 @@ function startNeverEndingGame (images) {
             detectEnd()
           }
         })
+
+        game.start()
         break
 
       case 'Suspend':
@@ -224,6 +226,35 @@ function startNeverEndingGame (images) {
 
       case 'Ping':
         window.PlayEGI.pong()
+        break
+
+      case 'Step':
+        switch (signal.direction) {
+          case 'Up':
+            player.stop()
+            break
+
+          case 'Left':
+            if (player.direction === 270) {
+              player.stepWest()
+            } else {
+              player.turnWest()
+            }
+            break
+
+          case 'Right':
+            if (player.direction === 90) {
+              player.stepEast()
+            } else {
+              player.turnEast()
+            }
+            break
+
+          case 'Down':
+            player.setDirection(180)
+            player.startMovingIfPossible()
+            break
+        }
         break
 
       case 'SensoState':
