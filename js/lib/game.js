@@ -14,6 +14,8 @@ var EventedLoop = require('eventedloop');
     var beforeCycleCallbacks = []
     var afterCycleCallbacks = []
     var gameLoop = new EventedLoop()
+    var runningTime = 0
+    var loopDuration = 20
 
     this.addStaticObject = function (sprite) {
       staticObjects.push(sprite)
@@ -75,6 +77,8 @@ var EventedLoop = require('eventedloop');
 
       intervalNum++
 
+      runningTime += loopDuration
+
       player.cycle()
 
       movingObjects.each(function (movingObject, i) {
@@ -133,8 +137,17 @@ var EventedLoop = require('eventedloop');
       gameLoop.stop()
     }
 
+    this.resume = function () {
+      paused = false
+      gameLoop.start()
+    }
+
     this.isPaused = function () {
       return paused
+    }
+
+    this.getRunningTime = function () {
+      return runningTime
     }
 
     this.reset = function () {
@@ -146,10 +159,11 @@ var EventedLoop = require('eventedloop');
       player.reset()
       player.setMapPosition(0, 0, 0)
       this.start()
+      runningTime = 0
     }.bind(this)
 
-    gameLoop.on('20', this.cycle)
-    gameLoop.on('20', this.draw)
+    gameLoop.on(loopDuration, this.cycle)
+    gameLoop.on(loopDuration, this.draw)
   }
 
   global.game = Game

@@ -194,9 +194,12 @@ function startNeverEndingGame (images) {
       case 'Hello':
         window.PlayEGI.ready()
         game.start()
-        window.setTimeout(function () {
-          detectEnd()
-        }, signal.settings.duration.value)
+
+        game.afterCycle(function () {
+          if (game.getRunningTime() >= signal.settings.duration.value) {
+            detectEnd()
+          }
+        })
         break
 
       case 'Suspend':
@@ -204,7 +207,7 @@ function startNeverEndingGame (images) {
         break
 
       case 'Resume':
-        game.start()
+        game.resume()
         break
 
       case 'Ping':
