@@ -31,6 +31,12 @@ var livesLeft = 5
 var loseLifeOnObstacleHit = false
 var dropRates = {smallTree: 4, tallTree: 2, jump: 1, thickSnow: 1, rock: 1}
 
+var defaultSettings = {
+  duration: 60000,
+  balanceFactor: 1.2
+}
+var settings
+
 function loadImages (sources, next) {
   var loaded = 0
   var images = {}
@@ -194,9 +200,15 @@ function startNeverEndingGame (images) {
       case 'Hello':
         window.PlayEGI.ready()
         game.start()
+        if (signal.settings) {
+          settings = {
+            duration: (signal.settings.duration && signal.settings.duration.value) || defaultSettings.duration,
+            balanceFactor: (signal.settings.balanceFactor && signal.settings.balanceFactor.value) || defaultSettings.balanceFactor
+          }
+        }
 
         game.afterCycle(function () {
-          if (game.getRunningTime() >= signal.settings.duration.value) {
+          if (game.getRunningTime() >= settings.duration) {
             detectEnd()
           }
         })
@@ -216,7 +228,9 @@ function startNeverEndingGame (images) {
 
       case 'SensoState':
         var balance = signal.state.right.f - signal.state.left.f
-        var canvasX = mainCanvas.width * (balance * 1.2 + 0.5)
+        // balance is 0 if same pressure on both sides
+        var canvasX = balance * settings.balanceFactor * mainCanvas.width + mainCanvas.width / 2
+        console.log(balance, settings.balanceFactor, canvasX)
         game.setMouseX(canvasX)
         game.setMouseY(mainCanvas.height)
         player.resetDirection()
