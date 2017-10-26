@@ -206,10 +206,13 @@ function startNeverEndingGame (images) {
           }
         }
 
+        var timer = window.PlayEGIHelpers.timer(document.body)
         game.afterCycle(function () {
-          if (game.getRunningTime() >= settings.duration) {
+          var remaining = settings.duration - game.getRunningTime()
+          if (remaining <= 0) {
             detectEnd()
           }
+          timer.setValue(remaining)
         })
 
         game.start()
