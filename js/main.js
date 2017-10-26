@@ -32,9 +32,9 @@ var loseLifeOnObstacleHit = false
 var dropRates = {smallTree: 4, tallTree: 2, jump: 1, thickSnow: 1, rock: 1}
 
 var defaultSettings = {
-  duration: 60000,
-  balanceFactor: 1.2
+  duration: 60000
 }
+var balanceFactor = 1.2
 var settings
 
 function loadImages (sources, next) {
@@ -202,8 +202,7 @@ function startNeverEndingGame (images) {
 
         if (signal.settings) {
           settings = {
-            duration: (signal.settings.duration && signal.settings.duration.value) || defaultSettings.duration,
-            balanceFactor: (signal.settings.balanceFactor && signal.settings.balanceFactor.value) || defaultSettings.balanceFactor
+            duration: (signal.settings.duration && signal.settings.duration.value) || defaultSettings.duration
           }
         }
 
@@ -260,8 +259,7 @@ function startNeverEndingGame (images) {
       case 'SensoState':
         var balance = signal.state.right.f - signal.state.left.f
         // balance is 0 if same pressure on both sides
-        var canvasX = balance * settings.balanceFactor * mainCanvas.width + mainCanvas.width / 2
-        console.log(balance, settings.balanceFactor, canvasX)
+        var canvasX = balance * balanceFactor * mainCanvas.width + mainCanvas.width / 2
         game.setMouseX(canvasX)
         game.setMouseY(mainCanvas.height)
         player.resetDirection()
