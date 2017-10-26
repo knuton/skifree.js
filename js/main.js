@@ -91,7 +91,7 @@ function startNeverEndingGame (images) {
       game.pause()
       game.cycle()
       window.PlayEGI.finish({
-        distanceTravelledInMetres: { type_: 'Distance', value: parseFloat(distanceTravelledInMetres) }
+        distanceTravelledInMetres: { type: 'RawInt', value: parseInt(distanceTravelledInMetres) }
       })
     }
   }
