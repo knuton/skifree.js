@@ -34,7 +34,7 @@ var dropRates = {smallTree: 4, tallTree: 2, jump: 1, thickSnow: 1, rock: 1}
 var defaultSettings = {
   duration: 60000
 }
-var balanceFactor = 1.2
+var balanceFactor = 1.5
 var settings
 
 function loadImages (sources, next) {
@@ -260,9 +260,8 @@ function startNeverEndingGame (images) {
         break
 
       case 'SensoState':
-        var balance = signal.state.right.f - signal.state.left.f
-        // balance is 0 if same pressure on both sides
-        var canvasX = balance * balanceFactor * mainCanvas.width + mainCanvas.width / 2
+        var x = linearInterpolX(signal.state)
+        var canvasX = x * balanceFactor * mainCanvas.width + mainCanvas.width / 2
         game.setMouseX(canvasX)
         game.setMouseY(mainCanvas.height)
         player.resetDirection()
@@ -276,6 +275,17 @@ function startNeverEndingGame (images) {
 
   player.isMoving = false
   player.setDirection(270)
+}
+
+// return linear interpolation of x on f, as relative coordinates (centered on 0)
+function linearInterpolX (state) {
+  var sumOfX = ['center', 'up', 'right', 'down', 'left'].map(function (d) {
+    return state[d].f * (state[d].x - 1.5)
+  }).reduce(function (sum, value) {
+    return sum + value
+  }, 0)
+
+  return sumOfX
 }
 
 function resizeCanvas () {
