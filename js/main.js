@@ -34,7 +34,7 @@ var dropRates = {smallTree: 4, tallTree: 2, jump: 1, thickSnow: 1, rock: 1}
 var defaultSettings = {
   duration: 60000
 }
-var balanceFactor = 1.5
+var balanceFactor = 1
 var settings
 
 function loadImages (sources, next) {
@@ -91,7 +91,7 @@ function startNeverEndingGame (images) {
       game.pause()
       game.cycle()
       window.PlayEGI.finish({
-        distanceTravelledInMetres: { type: 'RawInt', value: parseInt(distanceTravelledInMetres) }
+        distance: { type: 'RawInt', value: parseInt(distanceTravelledInMetres) }
       })
     }
   }
@@ -193,7 +193,7 @@ function startNeverEndingGame (images) {
     }
   })
 
-  game.addUIElement(infoBox)
+  // game.addUIElement(infoBox)
 
   window.PlayEGI.onSignal(function (signal) {
     switch (signal.type) {

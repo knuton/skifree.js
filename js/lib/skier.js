@@ -77,6 +77,7 @@ var Sprite = require('./sprite');
       if (cancelableStateInterval) {
         clearInterval(cancelableStateInterval)
       }
+      window.PlayEGI.motor('negative')
       that.setMapPosition(undefined, undefined, 0)
     }
 
@@ -87,6 +88,7 @@ var Sprite = require('./sprite');
       that.isMoving = true
       that.hasBeenHit = false
       that.isJumping = true
+      window.PlayEGI.motor('positive')
       that.setMapPosition(undefined, undefined, 1)
     }
 
