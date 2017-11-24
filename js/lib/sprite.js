@@ -92,14 +92,15 @@
     }
 
     this.draw = function (dCtx, spriteFrame) {
+      var zoom = 1.5
       var fr = that.data.parts[spriteFrame]
-      that.height = fr[3]
-      that.width = fr[2]
+      that.height = fr[3] * zoom
+      that.width = fr[2] * zoom
 
       var newCanvasPosition = dCtx.mapPositionToCanvasPosition(that.mapPosition)
       that.setCanvasPosition(newCanvasPosition[0], newCanvasPosition[1])
 
-      dCtx.drawImage(dCtx.getLoadedImage(that.data.$imageFile), fr[0], fr[1], fr[2], fr[3], that.canvasX, that.canvasY, fr[2], fr[3])
+      dCtx.drawImage(dCtx.getLoadedImage(that.data.$imageFile), fr[0], fr[1], fr[2], fr[3], that.canvasX, that.canvasY, fr[2] * zoom, fr[3] * zoom)
     }
 
     this.setMapPosition = function (x, y, z) {
