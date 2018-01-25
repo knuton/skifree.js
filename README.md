@@ -1,5 +1,11 @@
 # Skifree.js
 
+This fork is an integration example for Dividat's External Game Interface (EGI). Uses EGI scripts, with `PlayEGI.onSignal` to handle game lifecycle and player inputs, and `PlayEGI.finish` to push a new score. The green timer bar is done with `PlayEGIHelpers.timer`.
+
+To test it with Play[dev], run `npm install && make compile`, then start a static web server in the repo (for instance `python -m http.server`). Go to https://play.dividat.com/playDev.html and then enter the `index.html` as requested.
+
+---
+
 This is a **work in progress** JavaScript port of the popular 1991 PC game [SkiFree](http://en.wikipedia.org/wiki/Skifree) by [Chris Pirih](http://ski.ihoc.net/).
 
 [**Play this right now if you want to**](http://basicallydan.github.com/skifree.js) (opens a demo page).
