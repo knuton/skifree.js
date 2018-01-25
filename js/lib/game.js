@@ -1,161 +1,174 @@
-var SpriteArray = require('./spriteArray');
+var SpriteArray = require('./spriteArray')
 var EventedLoop = require('eventedloop');
 
 (function (global) {
-	function Game (mainCanvas, player) {
-		var staticObjects = new SpriteArray();
-		var movingObjects = new SpriteArray();
-		var uiElements = new SpriteArray();
-		var dContext = mainCanvas.getContext('2d');
-		var mouseX = dContext.getCentreOfViewport();
-		var mouseY = 0;
-		var paused = false;
-		var that = this;
-		var beforeCycleCallbacks = [];
-		var afterCycleCallbacks = [];
-		var gameLoop = new EventedLoop();
+  function Game (mainCanvas, player) {
+    var staticObjects = new SpriteArray()
+    var movingObjects = new SpriteArray()
+    var uiElements = new SpriteArray()
+    var dContext = mainCanvas.getContext('2d')
+    var mouseX = dContext.getCentreOfViewport()
+    var mouseY = 0
+    var paused = false
+    var that = this
+    var beforeCycleCallbacks = []
+    var afterCycleCallbacks = []
+    var gameLoop = new EventedLoop()
+    var runningTime = 0
+    var loopDuration = 20
 
-		this.addStaticObject = function (sprite) {
-			staticObjects.push(sprite);
-		};
+    this.addStaticObject = function (sprite) {
+      staticObjects.push(sprite)
+    }
 
-		this.addStaticObjects = function (sprites) {
-			sprites.forEach(this.addStaticObject.bind(this));
-		};
+    this.addStaticObjects = function (sprites) {
+      sprites.forEach(this.addStaticObject.bind(this))
+    }
 
-		this.addMovingObject = function (movingObject, movingObjectType) {
-			if (movingObjectType) {
-				staticObjects.onPush(function (obj) {
-					if (obj.data && obj.data.hitBehaviour[movingObjectType]) {
-						obj.onHitting(movingObject, obj.data.hitBehaviour[movingObjectType]);
-					}
-				}, true);
-			}
+    this.addMovingObject = function (movingObject, movingObjectType) {
+      if (movingObjectType) {
+        staticObjects.onPush(function (obj) {
+          if (obj.data && obj.data.hitBehaviour[movingObjectType]) {
+            obj.onHitting(movingObject, obj.data.hitBehaviour[movingObjectType])
+          }
+        }, true)
+      }
 
-			movingObjects.push(movingObject);
-		};
+      movingObjects.push(movingObject)
+    }
 
-		this.addUIElement = function (element) {
-			uiElements.push(element);
-		};
+    this.addUIElement = function (element) {
+      uiElements.push(element)
+    }
 
-		this.beforeCycle = function (callback) {
-			beforeCycleCallbacks.push(callback);
-		};
+    this.beforeCycle = function (callback) {
+      beforeCycleCallbacks.push(callback)
+    }
 
-		this.afterCycle = function (callback) {
-			afterCycleCallbacks.push(callback);
-		};
+    this.afterCycle = function (callback) {
+      afterCycleCallbacks.push(callback)
+    }
 
-		this.setMouseX = function (x) {
-			mouseX = x;
-		};
+    this.setMouseX = function (x) {
+      mouseX = x
+    }
 
-		this.setMouseY = function (y) {
-			mouseY = y;
-		};
+    this.setMouseY = function (y) {
+      mouseY = y
+    }
 
-		player.setMapPosition(0, 0);
-		player.setMapPositionTarget(0, -10);
-		dContext.followSprite(player);
+    player.setMapPosition(0, 0)
+    player.setMapPositionTarget(0, -10)
+    dContext.followSprite(player)
 
-		var intervalNum = 0;
+    var intervalNum = 0
 
-		this.cycle = function () {
-			beforeCycleCallbacks.each(function(c) {
-				c();
-			});
+    this.cycle = function () {
+      beforeCycleCallbacks.each(function (c) {
+        c()
+      })
 
-			// Clear canvas
-			var mouseMapPosition = dContext.canvasPositionToMapPosition([mouseX, mouseY]);
+      // Clear canvas
+      var mouseMapPosition = dContext.canvasPositionToMapPosition([mouseX, mouseY])
 
-			if (!player.isJumping) {
-				player.setMapPositionTarget(mouseMapPosition[0], mouseMapPosition[1]);
-			}
+      if (!player.isJumping) {
+        player.setMapPositionTarget(mouseMapPosition[0], mouseMapPosition[1])
+      }
 
-			intervalNum++;
+      intervalNum++
 
-			player.cycle();
+      runningTime += loopDuration
 
-			movingObjects.each(function (movingObject, i) {
-				movingObject.cycle(dContext);
-			});
-			
-			staticObjects.cull();
-			staticObjects.each(function (staticObject, i) {
-				if (staticObject.cycle) {
-					staticObject.cycle();
-				}
-			});
+      player.cycle()
 
-			uiElements.each(function (uiElement, i) {
-				if (uiElement.cycle) {
-					uiElement.cycle();
-				}
-			});
+      movingObjects.each(function (movingObject, i) {
+        movingObject.cycle(dContext)
+      })
 
-			afterCycleCallbacks.each(function(c) {
-				c();
-			});
-		};
+      staticObjects.cull()
+      staticObjects.each(function (staticObject, i) {
+        if (staticObject.cycle) {
+          staticObject.cycle()
+        }
+      })
 
-		that.draw = function () {
-			// Clear canvas
-			mainCanvas.width = mainCanvas.width;
+      uiElements.each(function (uiElement, i) {
+        if (uiElement.cycle) {
+          uiElement.cycle()
+        }
+      })
 
-			player.draw(dContext);
+      afterCycleCallbacks.each(function (c) {
+        c()
+      })
+    }
 
-			player.cycle();
+    that.draw = function () {
+      // Clear canvas
+      mainCanvas.width = mainCanvas.width
 
-			movingObjects.each(function (movingObject, i) {
-				movingObject.draw(dContext);
-			});
-			
-			staticObjects.each(function (staticObject, i) {
-				if (staticObject.draw) {
-					staticObject.draw(dContext, 'main');
-				}
-			});
+      player.draw(dContext)
 
-			uiElements.each(function (uiElement, i) {
-				if (uiElement.draw) {
-					uiElement.draw(dContext, 'main');
-				}
-			});
-		};
+      player.cycle()
 
-		this.start = function () {
-			gameLoop.start();
-		};
+      movingObjects.each(function (movingObject, i) {
+        movingObject.draw(dContext)
+      })
 
-		this.pause = function () {
-			paused = true;
-			gameLoop.stop();
-		};
+      staticObjects.each(function (staticObject, i) {
+        if (staticObject.draw) {
+          staticObject.draw(dContext, 'main')
+        }
+      })
 
-		this.isPaused = function () {
-			return paused;
-		};
+      uiElements.each(function (uiElement, i) {
+        if (uiElement.draw) {
+          uiElement.draw(dContext, 'main')
+        }
+      })
+    }
 
-		this.reset = function () {
-			paused = false;
-			staticObjects = new SpriteArray();
-			movingObjects = new SpriteArray();
-			mouseX = dContext.getCentreOfViewport();
-			mouseY = 0;
-			player.reset();
-			player.setMapPosition(0, 0, 0);
-			this.start();
-		}.bind(this);
+    this.start = function () {
+      gameLoop.start()
+    }
 
-		gameLoop.on('20', this.cycle);
-		gameLoop.on('20', this.draw);
-	}
+    this.pause = function () {
+      paused = true
+      gameLoop.stop()
+    }
 
-	global.game = Game;
-})( this );
+    this.resume = function () {
+      paused = false
+      gameLoop.start()
+    }
 
+    this.isPaused = function () {
+      return paused
+    }
+
+    this.getRunningTime = function () {
+      return runningTime
+    }
+
+    this.reset = function () {
+      paused = false
+      staticObjects = new SpriteArray()
+      movingObjects = new SpriteArray()
+      mouseX = dContext.getCentreOfViewport()
+      mouseY = 0
+      player.reset()
+      player.setMapPosition(0, 0, 0)
+      this.start()
+      runningTime = 0
+    }.bind(this)
+
+    gameLoop.on(loopDuration, this.cycle)
+    gameLoop.on(loopDuration, this.draw)
+  }
+
+  global.game = Game
+})(this)
 
 if (typeof module !== 'undefined') {
-	module.exports = this.game;
+  module.exports = this.game
 }
