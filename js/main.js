@@ -214,8 +214,6 @@ function startNeverEndingGame (images) {
           }
           timer.setPercent(elapsed / settings.duration)
         })
-
-        game.start()
         break
 
       case 'Suspend':
