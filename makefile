@@ -1,6 +1,6 @@
 VERSION ?= edge
 
-COPY_TO = ../diviapps/src/external/skifree.js
+COPY_TO = ../diviapps/frontend/src/external/skifree.js
 
 CFLAGS = -c -g -D $(VERSION)
 
@@ -17,6 +17,7 @@ test:
 	npm test
 
 compile:
+	mkdir -p dist
 	./node_modules/browserify/bin/cmd.js js/main.js -d -o dist/skifree.js
 	./node_modules/uglify-js/bin/uglifyjs dist/skifree.js -c > dist/skifree.min.js
 
