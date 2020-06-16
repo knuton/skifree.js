@@ -31,11 +31,11 @@ var livesLeft = 5
 var loseLifeOnObstacleHit = false
 var dropRates = {smallTree: 4, tallTree: 2, jump: 1, thickSnow: 1, rock: 1}
 
-var defaultSettings = {
-  duration: 60000
-}
 var balanceFactor = 1
-var settings
+var settings = {
+  duration: 60000,
+  wheelchair: false
+}
 
 function loadImages (sources, next) {
   var loaded = 0
@@ -202,7 +202,8 @@ function startNeverEndingGame (images) {
 
         if (signal.settings) {
           settings = {
-            duration: (signal.settings.duration && signal.settings.duration.value) || defaultSettings.duration
+            duration: (signal.settings.duration && signal.settings.duration.value) || defaultSettings.duration,
+            wheelchair: (signal.settings.wheelchair && signal.settings.wheelchair.value) || defaultSettings.wheelchair
           }
         }
 
@@ -258,7 +259,7 @@ function startNeverEndingGame (images) {
         break
 
       case 'SensoState':
-        var x = linearInterpolX(signal.state)
+        var x = linearInterpolX(signal.state) * (settings.wheelchair ? 3 : 1)
         var canvasX = x * balanceFactor * mainCanvas.width + mainCanvas.width / 2
         game.setMouseX(canvasX)
         game.setMouseY(mainCanvas.height)
