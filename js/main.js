@@ -202,8 +202,8 @@ function startNeverEndingGame (images) {
 
         if (signal.settings) {
           settings = {
-            duration: (signal.settings.duration && signal.settings.duration.value) || defaultSettings.duration,
-            wheelchair: (signal.settings.wheelchair && signal.settings.wheelchair.value) || defaultSettings.wheelchair
+            duration: (signal.settings.duration && signal.settings.duration.value) || settings.duration,
+            wheelchair: (signal.settings.wheelchair && signal.settings.wheelchair.value) || settings.wheelchair
           }
         }
 
