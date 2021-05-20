@@ -24,3 +24,7 @@ compile:
 copy:
 	cp *.png index.html $(COPY_TO)
 	cp -R css dist vendor $(COPY_TO)
+
+serve:
+	python -m SimpleHTTPServer
+

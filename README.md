@@ -6,9 +6,23 @@ To test it with Play[dev], run `npm install && make compile`, then start a stati
 
 ---
 
-This is a **work in progress** JavaScript port of the popular 1991 PC game [SkiFree](http://en.wikipedia.org/wiki/Skifree) by [Chris Pirih](http://ski.ihoc.net/).
+## Graphics development
 
-[**Play this right now if you want to**](http://basicallydan.github.com/skifree.js) (opens a demo page).
+To test a built version, run `make serve`.
+
+### Sprites
+
+When the development server is running you can find an overview of all sprites used in the game at [http://localhost:8000?sprites](http://localhost:8000?sprites). There you will find a row for each sprite, with all of its parts listed left to right.
+
+You can change the zoom level and smoothing settings using query parameters `zoom` and `pixel`.
+
+For example to see what sprites look like at double size and without smoothing, use `http://localhost:8000?sprites&zoom=2&pixel`.
+
+### Overriding sprites
+
+To try out alternative sprites without much effort, you can put files in the `sprites/` folder in this project. Each file must have a specific name of `<sprite>-<part>.png` to be picked up in the game. You can use the sprite overview above to find out the sprite and part names.
+
+You will probably have to define an appropriate size multiple in the file `sprite-overrides.js`.
 
 ## Features so far:
 

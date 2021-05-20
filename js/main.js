@@ -19,10 +19,26 @@ var Game = require('./lib/game')
 // Local variables for starting the game
 var mainCanvas = document.getElementById('skifree-canvas')
 var dContext = mainCanvas.getContext('2d')
-var imageSources = [ 'sprite-characters.png', 'skifree-objects.png' ]
 var global = this
 var infoBoxControls = 'Use the mouse or WASD to control the player'
 var sprites = require('./spriteInfo')
+var imageSources = []
+;(function () {
+  for (var key in sprites) {
+    var imageFile = sprites[key].$imageFile
+    if (imageFile) {
+      if (imageSources.indexOf(imageFile) == -1) {
+        imageSources.push(imageFile)
+      }
+
+      imageSources = imageSources.concat(
+        Object.keys(sprites[key].parts).map(function (partKey) {
+          return ("sprites/" + key + "-" + partKey + ".png")
+        })
+      )
+    }
+  }
+})()
 
 var pixelsPerMetre = 18
 var distanceTravelledInMetres = 0
@@ -51,6 +67,7 @@ function loadImages (sources, next) {
   sources.each(function (src) {
     var im = new Image()
     im.onload = finish
+    im.onerror = finish
     im.src = src
     dContext.storeLoadedImage(src, im)
   })
@@ -315,7 +332,7 @@ function startNeverEndingGame (images) {
         dContext.drawImage(dContext.getLoadedImage(sprite.$imageFile), fr[0], fr[1], fr[2], fr[3], xPos, yPos, frW, frH)
         dContext.fillText(partKey, xPos + frW / 2, yPos + frH)
 
-        xPos += frW * 2
+        xPos += frW + 20
         maxHeight = Math.max(maxHeight, frH)
       }
       width = Math.max(width, xPos)
@@ -326,7 +343,6 @@ function startNeverEndingGame (images) {
     return [width, yPos]
     }
     let [cWidth, cHeight] = drawSpriteMap()
-    console.log(cWidth)
     dContext.canvas.width = cWidth
     dContext.canvas.height = cHeight
     drawSpriteMap()

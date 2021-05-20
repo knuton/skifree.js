@@ -19,8 +19,8 @@
       hitBoxes: {
         0: [ 7, 20, 27, 34 ]
       },
-      id: 'player',
-      hitBehaviour: {}
+      hitBehaviour: {},
+      name: 'skier'
     },
     'smallTree': {
       $imageFile: 'skifree-objects.png',
@@ -30,7 +30,8 @@
       hitBoxes: {
         0: [ 0, 18, 30, 34 ]
       },
-      hitBehaviour: {}
+      hitBehaviour: {},
+      name: 'smallTree'
     },
     'tallTree': {
       $imageFile: 'skifree-objects.png',
@@ -42,21 +43,24 @@
         0: [0, 54, 32, 64],
         1: [0, 10, 32, 54]
       },
-      hitBehaviour: {}
+      hitBehaviour: {},
+      name: 'tallTree'
     },
     'thickSnow': {
       $imageFile: 'skifree-objects.png',
       parts: {
         main: [ 143, 53, 43, 10 ]
       },
-      hitBehaviour: {}
+      hitBehaviour: {},
+      name: 'thickSnow'
     },
     'rock': {
       $imageFile: 'skifree-objects.png',
       parts: {
         main: [ 30, 52, 23, 11 ]
       },
-      hitBehaviour: {}
+      hitBehaviour: {},
+      name: 'rock'
     },
     'monster': {
       $imageFile: 'sprite-characters.png',
@@ -71,21 +75,24 @@
         eating4: [ 219, 112, 25, 43 ],
         eating5: [ 243, 112, 26, 43 ]
       },
-      hitBehaviour: {}
+      hitBehaviour: {},
+      name: 'monster'
     },
     'jump': {
       $imageFile: 'skifree-objects.png',
       parts: {
         main: [ 109, 55, 32, 8 ]
       },
-      hitBehaviour: {}
+      hitBehaviour: {},
+      name: 'jump'
     },
     'signStart': {
       $imageFile: 'skifree-objects.png',
       parts: {
         main: [ 260, 103, 42, 27 ]
       },
-      hitBehaviour: {}
+      hitBehaviour: {},
+      name: 'signStart'
     },
     'snowboarder': {
       $imageFile: 'sprite-characters.png',
@@ -93,7 +100,8 @@
         sEast: [ 73, 229, 20, 29 ],
         sWest: [ 95, 228, 26, 30 ]
       },
-      hitBehaviour: {}
+      hitBehaviour: {},
+      name: 'snowBoarder'
     }
   }
 

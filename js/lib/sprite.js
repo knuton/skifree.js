@@ -92,9 +92,19 @@
     }
 
     this.draw = function (dCtx, spriteFrame) {
-      var fr = that.data.parts[spriteFrame]
-      that.height = fr[3] * zoom
-      that.width = fr[2] * zoom
+      var originalFrame = that.data.parts[spriteFrame]
+      var overridePath = "sprites/" + that.data.name + "-" + spriteFrame + ".png"
+      var overrideImg = dCtx.getLoadedImage(overridePath)
+      var isOverridden = overrideImg && overrideImg.complete && overrideImg.naturalHeight !== 0
+      var img = isOverridden ? overrideImg : dCtx.getLoadedImage(that.data.$imageFile)
+
+      var spriteZoom = 1
+      if (isOverridden && spriteOverrides[that.data.name] && typeof spriteOverrides[that.data.name].sizeMultiple === 'number') {
+        var spriteZoom = spriteOverrides[that.data.name].sizeMultiple
+      }
+      var fr = isOverridden ? [0, 0, img.width, img.height] : originalFrame
+      that.width = fr[2] * spriteZoom * zoom
+      that.height = fr[3] * spriteZoom * zoom
 
       var newCanvasPosition = dCtx.mapPositionToCanvasPosition(that.mapPosition)
       that.setCanvasPosition(newCanvasPosition[0], newCanvasPosition[1])
@@ -103,7 +113,7 @@
       if (smoothenImages) {
         dCtx.imageSmoothingQuality = 'high'
       }
-      dCtx.drawImage(dCtx.getLoadedImage(that.data.$imageFile), fr[0], fr[1], fr[2], fr[3], that.canvasX, that.canvasY, fr[2] * zoom, fr[3] * zoom)
+      dCtx.drawImage(img, fr[0], fr[1], fr[2], fr[3], that.canvasX, that.canvasY, that.width, that.height)
     }
 
     this.setMapPosition = function (x, y, z) {
