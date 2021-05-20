@@ -274,6 +274,63 @@ function startNeverEndingGame (images) {
 
   player.isMoving = false
   player.setDirection(270)
+
+  window.zoom = parseFloat(new URLSearchParams(document.location.search).get("zoom")) || 1
+  window.smoothenImages = new URLSearchParams(document.location.search).get("pixel") == null
+  if (document.location.search.indexOf("sprites") > -1) {
+    var xPos = 5, yPos = 5
+    function drawSpriteMap() {
+    xPos = 10
+    yPos = 10
+    var width = xPos
+
+    dContext.fillStyle = "#000000"
+    dContext.font = "10px monospace"
+    dContext.textBaseline = "top"
+    for (var spriteKey in sprites) {
+      if (spriteKey === 'superior') continue
+      var sprite = sprites[spriteKey]
+      var maxHeight = 0
+
+      dContext.textAlign = "start"
+      dContext.font = "bold 12px monospace"
+      dContext.fillText(spriteKey, xPos, yPos)
+      yPos += 20
+
+      for (var partKey in sprite.parts) {
+        var fr = sprite.parts[partKey]
+        if (!Array.isArray(fr)) continue
+
+        var frW = fr[2] * zoom
+        var frH = fr[3] * zoom
+
+
+        dContext.imageSmoothingEnabled = smoothenImages
+        if (smoothenImages) {
+          dContext.imageSmoothingQuality = 'high'
+        }
+
+        dContext.font = "10px monospace"
+        dContext.textAlign = "center"
+        dContext.drawImage(dContext.getLoadedImage(sprite.$imageFile), fr[0], fr[1], fr[2], fr[3], xPos, yPos, frW, frH)
+        dContext.fillText(partKey, xPos + frW / 2, yPos + frH)
+
+        xPos += frW * 2
+        maxHeight = Math.max(maxHeight, frH)
+      }
+      width = Math.max(width, xPos)
+      xPos = 10
+      yPos += maxHeight + 30
+
+    }
+    return [width, yPos]
+    }
+    let [cWidth, cHeight] = drawSpriteMap()
+    console.log(cWidth)
+    dContext.canvas.width = cWidth
+    dContext.canvas.height = cHeight
+    drawSpriteMap()
+  }
 }
 
 // return linear interpolation of x on f, as relative coordinates (centered on 0)
