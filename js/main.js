@@ -33,8 +33,18 @@ var imageSources = []
 
       imageSources = imageSources.concat(
         Object.keys(sprites[key].parts).map(function (partKey) {
-          return ("sprites/" + key + "-" + partKey + ".png")
-        })
+          try {
+            var frames = spriteOverrides[key].parts[partKey].frames
+            var arr = []
+            for (var i = 1; i <= frames; i++) {
+              arr[i] = ("sprites/" + key + "-" + partKey + i + ".png")
+            }
+            return arr
+          } catch (e) {
+            console.error(e)
+            return ("sprites/" + key + "-" + partKey + ".png")
+          }
+        }).flat()
       )
     }
   }

@@ -94,6 +94,16 @@
     this.draw = function (dCtx, spriteFrame) {
       var originalFrame = that.data.parts[spriteFrame]
       var overridePath = "sprites/" + that.data.name + "-" + spriteFrame + ".png"
+
+      try {
+        var frames = spriteOverrides[that.data.name].parts[spriteFrame].frames
+        var fps = spriteOverrides[that.data.name].parts[spriteFrame].fps
+        var deltaT = Math.floor(1000 / fps)
+        var frame = Math.floor(Date.now() / deltaT) % frames + 1
+        overridePath = "sprites/" + that.data.name + "-" + spriteFrame + frame + ".png"
+      } catch (e) {
+      }
+
       var overrideImg = dCtx.getLoadedImage(overridePath)
       var isOverridden = overrideImg && overrideImg.complete && overrideImg.naturalHeight !== 0
       var img = isOverridden ? overrideImg : dCtx.getLoadedImage(that.data.$imageFile)
