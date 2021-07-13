@@ -1,8 +1,9 @@
 window.spriteOverrides = {
   skier: {
-    sizeMultiple: 0.05,
+    sizeMultiple: 0.2,
     parts: {
       sEast: { frames: 3, fps: 7 },
+      sWest: { frames: 3, fps: 7 },
       jumping: { frames: 4, fps: 7 }
     }
   },
